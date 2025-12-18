@@ -7,6 +7,7 @@ import math
 
 sys.setrecursionlimit(1000000)
 
+
 class TreeNode:
     def __init__(self, key):
         self.key = key
@@ -15,6 +16,7 @@ class TreeNode:
         self.parent = None
         self.balance_factor = 0
         self.color = 'RED'
+
 
 class TreeBase:
     def search(self, root, key):
@@ -70,6 +72,7 @@ class TreeBase:
             return 0
         return 1 + max(self.calculate_height(node.left), self.calculate_height(node.right))
 
+
 class BST(TreeBase):
     def insert(self, root, key):
         if not root:
@@ -123,6 +126,7 @@ class BST(TreeBase):
 
     def get_height(self, root):
         return self.calculate_height(root)
+
 
 class AVL(BST):
     def _calculate_node_balance(self, node):
@@ -248,6 +252,7 @@ class AVL(BST):
             return "Empty tree"
         max_balance = 0
         min_balance = 0
+
         def traverse(node):
             nonlocal max_balance, min_balance
             if node:
@@ -255,8 +260,10 @@ class AVL(BST):
                 min_balance = min(min_balance, node.balance_factor)
                 traverse(node.left)
                 traverse(node.right)
+
         traverse(root)
         return f"Max |balance|: {max_balance}, Min balance: {min_balance}"
+
 
 class RBT:
     def __init__(self):
@@ -446,7 +453,8 @@ class RBT:
                     x.parent.color = 'RED'
                     self._left_rotate(x.parent)
                     sibling = x.parent.right
-                if getattr(sibling.left, "color", 'BLACK') == 'BLACK' and getattr(sibling.right, "color", 'BLACK') == 'BLACK':
+                if getattr(sibling.left, "color", 'BLACK') == 'BLACK' and getattr(sibling.right, "color",
+                                                                                  'BLACK') == 'BLACK':
                     sibling.color = 'RED'
                     x = x.parent
                 else:
@@ -467,7 +475,8 @@ class RBT:
                     x.parent.color = 'RED'
                     self._right_rotate(x.parent)
                     sibling = x.parent.left
-                if getattr(sibling.right, "color", 'BLACK') == 'BLACK' and getattr(sibling.left, "color", 'BLACK') == 'BLACK':
+                if getattr(sibling.right, "color", 'BLACK') == 'BLACK' and getattr(sibling.left, "color",
+                                                                                   'BLACK') == 'BLACK':
                     sibling.color = 'RED'
                     x = x.parent
                 else:
@@ -524,6 +533,7 @@ class RBT:
             return 0
         return 1 + max(self._height(node.left), self._height(node.right))
 
+
 def run_experiment(tree_type, max_keys=20000, step=2000, sorted_keys=False, tree_name=""):
     heights, sizes = [], []
     for size in range(step, max_keys + 1, step):
@@ -549,6 +559,7 @@ def run_experiment(tree_type, max_keys=20000, step=2000, sorted_keys=False, tree
         sizes.append(size)
     return sizes, heights
 
+
 def show_tree_demo():
     random.seed(42)
     keys = random.sample(range(1, 100), 15)
@@ -562,34 +573,83 @@ def show_tree_demo():
         bst_root = bst.insert(bst_root, key)
         avl_root = avl.insert(avl_root, key)
         rbt.insert(key)
+
     print("=" * 70)
-    print("ДЕМОНСТРАЦИЯ ВСЕХ ОБХОДОВ ДЛЯ КАЖДОГО ДЕРЕВА")
+    print("ДЕМОНСТРАЦИЯ ПОИСКА")
     print("=" * 70)
+
+    existing_key = keys[7]
+    non_existing_key = 999
+
+    print(f"\nПоиск ключа {existing_key}:")
+    bst_result = bst.search(bst_root, existing_key)
+    avl_result = avl.search(avl_root, existing_key)
+    rbt_result = rbt.search(existing_key)
+    print(f"BST: {'НАЙДЕН' if bst_result else 'НЕ НАЙДЕН'}")
+    print(f"AVL: {'НАЙДЕН' if avl_result else 'НЕ НАЙДЕН'}")
+    print(f"RBT: {'НАЙДЕН' if rbt_result != rbt.NIL else 'НЕ НАЙДЕН'}")
+
+    print(f"\nПоиск ключа {non_existing_key}:")
+    bst_result = bst.search(bst_root, non_existing_key)
+    avl_result = avl.search(avl_root, non_existing_key)
+    rbt_result = rbt.search(non_existing_key)
+    print(f"BST: {'НАЙДЕН' if bst_result else 'НЕ НАЙДЕН'}")
+    print(f"AVL: {'НАЙДЕН' if avl_result else 'НЕ НАЙДЕН'}")
+    print(f"RBT: {'НАЙДЕН' if rbt_result != rbt.NIL else 'НЕ НАЙДЕН'}")
+
+    print("\n" + "=" * 70)
+    print("ДЕМОНСТРАЦИЯ УДАЛЕНИЯ")
+    print("=" * 70)
+
+    delete_key = keys[5]
+    non_delete_key = 888
+
+    print(f"\nУдаление существующего ключа {delete_key}:")
+    bst_root = bst.delete(bst_root, delete_key)
+    avl_root = avl.delete(avl_root, delete_key)
+    rbt.delete(delete_key)
+    print("Ключ удален из всех деревьев")
+
+    print(f"\nУдаление несуществующего ключа {non_delete_key}:")
+    bst_root = bst.delete(bst_root, non_delete_key)
+    avl_root = avl.delete(avl_root, non_delete_key)
+    rbt.delete(non_delete_key)
+    print("Такого ключа нет в деревьях")
+
+    print("\n" + "=" * 70)
+    print("ОБХОДЫ ДЕРЕВЬЕВ ПОСЛЕ ОПЕРАЦИЙ")
+    print("=" * 70)
+
     print("\n=== BST ДЕРЕВО ===")
     print(f"Высота: {bst.get_height(bst_root)}")
-    print(f"Минимум: {bst.get_min_value_node(bst_root).key}")
-    print(f"Максимум: {bst.get_max_value_node(bst_root).key}")
     print("Обход в ширину:", ' '.join(map(str, bst.level_order(bst_root))))
-    print("Прямой обход: ", end=''); bst.preorder(bst_root); print()
-    print("Симметричный обход: ", end=''); bst.inorder(bst_root); print()
-    print("Обратный обход: ", end=''); bst.postorder(bst_root); print()
+    print("Прямой обход: ", end='')
+    bst.preorder(bst_root)
+    print("\nСимметричный обход: ", end='')
+    bst.inorder(bst_root)
+    print("\nОбратный обход: ", end='')
+    bst.postorder(bst_root)
+    print()
+
     print("\n=== AVL ДЕРЕВО ===")
     print(f"Высота: {avl.get_height(avl_root)}")
-    print(f"Минимум: {avl.get_min_value_node(avl_root).key}")
-    print(f"Максимум: {avl.get_max_value_node(avl_root).key}")
     print("Обход в ширину:", ' '.join(map(str, avl.level_order(avl_root))))
-    print("Прямой обход: ", end=''); avl.preorder(avl_root); print()
-    print("Симметричный обход: ", end=''); avl.inorder(avl_root); print()
-    print("Обратный обход: ", end=''); avl.postorder(avl_root); print()
+    print("Прямой обход: ", end='')
+    avl.preorder(avl_root)
+    print("\nСимметричный обход: ", end='')
+    avl.inorder(avl_root)
+    print("\nОбратный обход: ", end='')
+    avl.postorder(avl_root)
+    print()
     print("Баланс:", avl.get_balance_info(avl_root))
+
     print("\n=== RBT ДЕРЕВО ===")
     print(f"Высота: {rbt.get_height()}")
-    print(f"Минимум: {rbt.get_min()}")
-    print(f"Максимум: {rbt.get_max()}")
     print("Обход в ширину:", ' '.join(map(str, rbt.level_order_traversal())))
     print("Прямой обход:", ' '.join(map(str, rbt.preorder_traversal())))
     print("Симметричный обход:", ' '.join(map(str, rbt.inorder_traversal())))
     print("Обратный обход:", ' '.join(map(str, rbt.postorder_traversal())))
+
 
 if __name__ == "__main__":
     print("=" * 80)
@@ -598,11 +658,16 @@ if __name__ == "__main__":
 
     show_tree_demo()
 
-    sizes_bst_random, heights_bst_random = run_experiment(BST, max_keys=20000, step=2000, sorted_keys=False, tree_name="BST")
-    sizes_avl_random, heights_avl_random = run_experiment(AVL, max_keys=20000, step=2000, sorted_keys=False, tree_name="AVL")
-    sizes_rbt_random, heights_rbt_random = run_experiment(RBT, max_keys=20000, step=2000, sorted_keys=False, tree_name="RBT")
-    sizes_avl_sorted, heights_avl_sorted = run_experiment(AVL, max_keys=20000, step=2000, sorted_keys=True, tree_name="AVL")
-    sizes_rbt_sorted, heights_rbt_sorted = run_experiment(RBT, max_keys=20000, step=2000, sorted_keys=True, tree_name="RBT")
+    sizes_bst_random, heights_bst_random = run_experiment(BST, max_keys=20000, step=2000, sorted_keys=False,
+                                                          tree_name="BST")
+    sizes_avl_random, heights_avl_random = run_experiment(AVL, max_keys=20000, step=2000, sorted_keys=False,
+                                                          tree_name="AVL")
+    sizes_rbt_random, heights_rbt_random = run_experiment(RBT, max_keys=20000, step=2000, sorted_keys=False,
+                                                          tree_name="RBT")
+    sizes_avl_sorted, heights_avl_sorted = run_experiment(AVL, max_keys=20000, step=2000, sorted_keys=True,
+                                                          tree_name="AVL")
+    sizes_rbt_sorted, heights_rbt_sorted = run_experiment(RBT, max_keys=20000, step=2000, sorted_keys=True,
+                                                          tree_name="RBT")
 
     n = np.linspace(1, 20000, 200)
     y_theory_avl = 1.44 * np.log2(n + 1)
